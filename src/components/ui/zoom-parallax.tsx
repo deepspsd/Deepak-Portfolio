@@ -1,0 +1,98 @@
+import { useScroll, useTransform, motion } from 'framer-motion';
+import { useRef } from 'react';
+
+interface Image {
+  src: string;
+  alt?: string;
+}
+
+interface ZoomParallaxProps {
+  /** Array of images to be displayed in the parallax effect max 7 images */
+  images: Image[];
+}
+
+export function ZoomParallax({ images }: ZoomParallaxProps) {
+  const container = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: container,
+    offset: ['start start', 'end end'],
+  });
+
+  const scale4 = useTransform(scrollYProgress, [0, 1], [1, 4]);
+  const scale5 = useTransform(scrollYProgress, [0, 1], [1, 5]);
+  const scale6 = useTransform(scrollYProgress, [0, 1], [1, 6]);
+  const scale8 = useTransform(scrollYProgress, [0, 1], [1, 8]);
+  const scale9 = useTransform(scrollYProgress, [0, 1], [1, 9]);
+
+  const textOpacity = useTransform(scrollYProgress, [0.15, 0.3, 0.6, 0.8], [0, 1, 1, 0]);
+  const textY = useTransform(scrollYProgress, [0.15, 0.3, 0.6, 0.8], [40, 0, 0, -40]);
+
+  const scales = [scale4, scale5, scale6, scale5, scale6, scale8, scale9];
+
+  return (
+    <div ref={container} className="relative h-[300vh]">
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* Center animated text overlay */}
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-4"
+          style={{ opacity: textOpacity, y: textY }}
+        >
+          <div className="pointer-events-none max-w-3xl w-full rounded-3xl bg-white/12 dark:bg-black/65 backdrop-blur-2xl border border-white/30 px-8 py-7 text-center shadow-[0_20px_60px_rgba(0,0,0,0.75)]">
+            <p className="text-xs sm:text-sm uppercase tracking-[0.35em] text-neutral-300 mb-4">
+              scroll to reveal
+            </p>
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-extrabold text-white drop-shadow-[0_6px_16px_rgba(0,0,0,0.9)]">
+              YES, <span className="text-accent">THIS IS ME</span>
+            </h2>
+            <p className="mt-5 text-sm sm:text-base md:text-lg text-neutral-100">
+              A quick glimpse of the person behind these projects — a curious AI engineer in the making.
+            </p>
+          </div>
+        </motion.div>
+
+        {images.map(({ src, alt }, index) => {
+          const scale = scales[index % scales.length];
+          return (
+            <motion.div
+              key={index}
+              style={{ scale }}
+              className={`absolute top-0 flex h-full w-full items-center justify-center ${
+                index === 1
+                  ? '[&>div]:!-top-[30vh] [&>div]:!left-[5vw] [&>div]:!h-[30vh] [&>div]:!w-[35vw]'
+                  : ''
+              } ${
+                index === 2
+                  ? '[&>div]:!-top-[10vh] [&>div]:!-left-[25vw] [&>div]:!h-[45vh] [&>div]:!w-[20vw]'
+                  : ''
+              } ${
+                index === 3
+                  ? '[&>div]:!left-[27.5vw] [&>div]:!h-[25vh] [&>div]:!w-[25vw]'
+                  : ''
+              } ${
+                index === 4
+                  ? '[&>div]:!top-[27.5vh] [&>div]:!left-[5vw] [&>div]:!h-[25vh] [&>div]:!w-[20vw]'
+                  : ''
+              } ${
+                index === 5
+                  ? '[&>div]:!top-[27.5vh] [&>div]:!-left-[22.5vw] [&>div]:!h-[25vh] [&>div]:!w-[30vw]'
+                  : ''
+              } ${
+                index === 6
+                  ? '[&>div]:!top-[22.5vh] [&>div]:!left-[25vw] [&>div]:!h-[15vh] [&>div]:!w-[15vw]'
+                  : ''
+              } `}
+            >
+              <div className="relative h-[25vh] w-[25vw]">
+                <img
+                  src={src || '/placeholder.svg'}
+                  alt={alt || `Parallax image ${index + 1}`}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
