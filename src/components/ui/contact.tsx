@@ -1,142 +1,139 @@
 import { motion } from "framer-motion";
-import { Mail, Linkedin, Github, Twitter, Send } from "lucide-react";
-import { useForm } from "@formspree/react";
+import { ArrowUpRight, Mail, MapPin, Github, Linkedin, Twitter } from "lucide-react";
+import Section from "@/components/ui/Section";
+import Magnetic from "@/components/ui/Magnetic";
+import BlurText from "./BlurText";
 
 const Contact = () => {
-  const [state, handleSubmit] = useForm("mldvzkoe"); // Replace with your Formspree ID
-
-  const socialLinks = [
-    { icon: Mail, label: "Email", href: "mailto:dp3189756@gmail.com", username: "dp3189756@gmail.com" },
-    { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/deepak-prasad-678a85270", username: "/deepak-prasad-678a85270" },
-    { icon: Github, label: "GitHub", href: "https://github.com/deepspsd", username: "@deepspsd" },
-    { icon: Twitter, label: "Twitter", href: "https://twitter.com/deepakprasads", username: "@deepakprasads" }
-  ];
-
   return (
-    <section id="contact" className="h-full py-20 px-4 sm:px-8 overflow-y-auto">
-      <div className="max-w-6xl mx-auto w-full">
-        <motion.h2
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+    <Section id="contact" className="min-h-screen flex items-center relative overflow-hidden py-20 lg:py-0">
+
+      {/* Background Gradient */}
+      <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-accent/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2 translate-x-1/2" />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center w-full max-w-7xl mx-auto px-6 relative z-10">
+
+        {/* Text Side */}
+        <motion.div
+          initial={{ opacity: 0, x: -50 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="text-4xl sm:text-5xl font-bold mb-12 text-accent"
-          style={{ fontFamily: "'Fira Code', monospace" }}
+          className="space-y-8"
         >
-          Get In Touch
-        </motion.h2>
-
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-neutral-400 mb-6" style={{ fontFamily: "'Antic', sans-serif" }}>
-              I'm always open to discussing new projects, learning opportunities, collaborations, or internships. 
-              Feel free to reach out!
+          <div>
+            <BlurText
+              text="LET'S CONNECT"
+              className="font-syne text-6xl md:text-8xl font-bold text-white mb-4 tracking-tighter"
+              delay={0.1}
+            />
+            <p className="font-space text-xl text-neutral-400 max-w-lg leading-relaxed">
+              Have a project in mind, or just want to chat? I'm currently <span className="text-accent">available</span> for freelance work and internship opportunities.
             </p>
+          </div>
 
-            {state.succeeded ? (
-              <div className="text-center p-4 bg-neutral-800 border border-accent rounded-lg">
-                <p className="text-white">Thanks for your message! I'll get back to you soon.</p>
+          <div className="space-y-6">
+            <div className="flex items-center gap-4 group cursor-pointer w-max">
+              <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:bg-accent group-hover:text-black transition-colors">
+                <Mail size={20} />
               </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium mb-2 text-neutral-300">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    required
-                    className="w-full px-4 py-3 bg-neutral-900/50 border border-neutral-800 rounded-lg focus:outline-none focus:border-accent transition-colors text-white backdrop-blur-sm"
-                    placeholder="Your name"
-                  />
-                </div>
+              <div>
+                <span className="block text-xs text-neutral-500 uppercase tracking-wider font-space">Email</span>
+                <span className="text-lg text-white group-hover:text-accent transition-colors font-syne">dp3189756@gmail.com</span>
+              </div>
+            </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium mb-2 text-neutral-300">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    required
-                    className="w-full px-4 py-3 bg-neutral-900/50 border border-neutral-800 rounded-lg focus:outline-none focus:border-accent transition-colors text-white backdrop-blur-sm"
-                    placeholder="your.email@example.com"
-                  />
-                </div>
+            <div className="flex items-center gap-4 group cursor-pointer w-max">
+              <div className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:bg-accent group-hover:text-black transition-colors">
+                <MapPin size={20} />
+              </div>
+              <div>
+                <span className="block text-xs text-neutral-500 uppercase tracking-wider font-space">Location</span>
+                <span className="text-lg text-white group-hover:text-accent transition-colors font-syne">Bengaluru, India</span>
+              </div>
+            </div>
+          </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2 text-neutral-300">
-                    Message
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    required
-                    rows={5}
-                    className="w-full px-4 py-3 bg-neutral-900/50 border border-neutral-800 rounded-lg focus:outline-none focus:border-accent transition-colors text-white resize-none backdrop-blur-sm"
-                    placeholder="Your message..."
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={state.submitting}
-                  className="w-full bg-accent text-black font-semibold py-3 rounded-lg hover:bg-accent/90 transition-colors flex items-center justify-center gap-2 disabled:bg-neutral-500 disabled:cursor-not-allowed"
-                >
-                  <Send size={18} />
-                  {state.submitting ? 'Sending...' : 'Send Message'}
-                </button>
-              </form>
-            )}
-          </motion.div>
-
-          {/* Social Links */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-            className="flex flex-col justify-center"
-          >
-            <h3 className="text-2xl font-bold mb-6 text-white">Connect With Me</h3>
-            <div className="space-y-4">
-              {socialLinks.map((link, index) => {
-                const Icon = link.icon;
-                return (
-                  <motion.a
-                    key={link.label}
-                    href={link.href}
+          <div className="pt-8">
+            <span className="font-space text-neutral-500 uppercase tracking-widest text-sm mb-4 block">Socials</span>
+            <div className="flex gap-4">
+              {[
+                { icon: Github, href: "https://github.com/deepspsd" },
+                { icon: Linkedin, href: "https://www.linkedin.com/in/deepak-prasad-678a85270" },
+                { icon: Twitter, href: "https://x.com/DeepakAppuSV" }
+              ].map((item, i) => (
+                <Magnetic key={i}>
+                  <a
+                    href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    viewport={{ once: true }}
-                    className="flex items-center gap-4 p-4 bg-neutral-900/50 border border-neutral-800 rounded-lg hover:border-accent transition-all group backdrop-blur-sm hover:scale-105"
+                    className="w-14 h-14 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white hover:text-black transition-all"
                   >
-                    <Icon className="text-accent group-hover:scale-110 transition-transform" size={24} />
-                    <div>
-                      <p className="text-white font-semibold">{link.label}</p>
-                      <p className="text-sm text-neutral-400">{link.username}</p>
-                    </div>
-                  </motion.a>
-                );
-              })}
+                    <item.icon size={24} />
+                  </a>
+                </Magnetic>
+              ))}
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
+
+        {/* Form Side */}
+        <motion.div
+          initial={{ opacity: 0, x: 50 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="relative"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent rounded-3xl blur-2xl -z-10 opacity-20" />
+          <form className="bg-neutral-900/50 backdrop-blur-xl border border-white/10 p-8 md:p-12 rounded-3xl space-y-6 shadow-2xl">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FloatingInput label="Name" />
+              <FloatingInput label="Email" type="email" />
+            </div>
+
+            <FloatingInput label="Subject" />
+            <FloatingTextarea label="Message" />
+
+            <button type="submit" className="w-full bg-accent text-neutral-950 font-syne font-bold text-lg py-4 rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group shadow-[0_4px_14px_0_rgba(195,228,29,0.5)]">
+              Send Message
+              <ArrowUpRight className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </button>
+          </form>
+        </motion.div>
       </div>
-    </section>
+
+      <footer className="absolute bottom-6 left-0 right-0 text-center z-10">
+        <p className="text-neutral-600 font-space text-xs uppercase tracking-widest">
+          © {new Date().getFullYear()} Deepak Prasad. All rights reserved.
+        </p>
+      </footer>
+    </Section>
   );
 };
+
+const FloatingInput = ({ label, type = "text" }: { label: string, type?: string }) => (
+  <div className="relative group">
+    <input
+      type={type}
+      placeholder=" "
+      className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-white placeholder-transparent focus:outline-none focus:border-accent focus:bg-white/10 transition-all outline-none"
+    />
+    <label className="absolute left-4 top-1 text-xs font-space text-neutral-400 uppercase tracking-wider transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:text-neutral-500 peer-placeholder-shown:top-3.5 peer-focus:top-1 peer-focus:text-xs peer-focus:text-accent cursor-text">
+      {label}
+    </label>
+  </div>
+);
+
+const FloatingTextarea = ({ label }: { label: string }) => (
+  <div className="relative group">
+    <textarea
+      rows={4}
+      placeholder=" "
+      className="peer w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 pt-6 text-white placeholder-transparent focus:outline-none focus:border-accent focus:bg-white/10 transition-all outline-none resize-none"
+    />
+    <label className="absolute left-4 top-1 text-xs font-space text-neutral-400 uppercase tracking-wider transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:text-neutral-500 peer-placeholder-shown:top-3.5 peer-focus:top-1 peer-focus:text-xs peer-focus:text-accent cursor-text">
+      {label}
+    </label>
+  </div>
+);
 
 export default Contact;

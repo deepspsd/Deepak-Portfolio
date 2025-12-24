@@ -1,69 +1,32 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion } from "framer-motion";
-import { Menu, X, Sun, Moon } from "lucide-react";
-
-// Button Component
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  className?: string;
-  children: React.ReactNode;
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className = "", children, ...props }, ref) => {
-    return (
-      <button
-        ref={ref}
-        className={`inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${className}`}
-        {...props}
-      >
-        {children}
-      </button>
-    );
-  }
-);
-Button.displayName = "Button";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X } from "lucide-react";
+import { useLenis } from '@studio-freight/react-lenis';
+import { cn } from "@/lib/utils";
 
 const menuItems = [
-    { label: "HOME", href: "#home" },
-    { label: "ABOUT", href: "#about" },
-    { label: "EXPERIENCE", href: "#experience" },
-    { label: "PROJECTS", href: "#projects" },
-    { label: "SKILLS", href: "#skills" },
-    { label: "EDUCATION", href: "#education" },
-    { label: "CONTACT", href: "#contact" },
-  ];
+  { label: "Home", href: "#home" },
+  { label: "About", href: "#about" },
+  { label: "Education", href: "#education" },
+  { label: "Skills", href: "#skills" },
+  { label: "Projects", href: "#projects" },
+  { label: "Experience", href: "#experience" },
+  { label: "Contact", href: "#contact" },
+];
 
 const Navbar: React.FC = () => {
-  const [isDark, setIsDark] = useState(true);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("home");
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRef = useRef<HTMLButtonElement>(null);
+  const lenis = useLenis();
 
   useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDark]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        isMenuOpen &&
-        menuRef.current &&
-        buttonRef.current &&
-        !menuRef.current.contains(event.target as Node) &&
-        !buttonRef.current.contains(event.target as Node)
-      ) {
-        setIsMenuOpen(false);
-      }
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
     };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isMenuOpen]);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -74,155 +37,151 @@ const Navbar: React.FC = () => {
           }
         });
       },
-      { rootMargin: "-50% 0px -50% 0px" }
+      { rootMargin: "-20% 0px -50% 0px", threshold: 0.1 }
     );
 
     menuItems.forEach((item) => {
-      const element = document.getElementById(item.href.substring(1));
-      if (element) {
-        observer.observe(element);
-      }
+      const el = document.getElementById(item.href.substring(1));
+      if (el) observer.observe(el);
     });
 
-    return () => {
-      menuItems.forEach((item) => {
-        const element = document.getElementById(item.href.substring(1));
-        if (element) {
-          observer.unobserve(element);
-        }
-      });
-    };
+    return () => observer.disconnect();
   }, []);
 
-  const toggleTheme = () => {
-    setIsDark(!isDark);
-  };
-
-  const handleNavigation = (href: string) => {
-    const targetId = href.startsWith("#") ? href.slice(1) : href;
-    const element = document.getElementById(targetId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollTo = (id: string) => {
+    if (lenis) {
+      lenis.scrollTo(id, { offset: 0 });
+      setIsMenuOpen(false);
+    } else {
+      const el = document.getElementById(id.substring(1));
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
+        window.scrollTo({ top: y, behavior: 'smooth' });
+        setIsMenuOpen(false);
+      }
     }
   };
 
   return (
     <>
-      {/* Header for mobile and theme toggle */}
-      <header className="fixed top-0 left-0 right-0 z-50 px-4 sm:px-8 py-4 flex items-center justify-between md:hidden">
-          {/* Menu Button */}
-          <div className="relative">
-            <Button
-              ref={buttonRef}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 hover:bg-white/10 dark:hover:bg-white/10"
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </Button>
-
-            {/* Dropdown Menu */}
-            {isMenuOpen && (
-              <div
-                ref={menuRef}
-                className={`absolute top-full left-0 mt-2 w-48 rounded-lg shadow-lg ${isDark ? "bg-neutral-900" : "bg-white"} border ${isDark ? "border-neutral-800" : "border-neutral-200"}`}>
-                <nav className="py-2">
-                  {menuItems.map((item) => (
-                    <a
-                      key={item.label}
-                      href={item.href}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setIsMenuOpen(false);
-                        handleNavigation(item.href);
-                      }}
-                      className={`block px-4 py-2 text-sm transition-colors ${activeSection === item.href.substring(1) ? "text-accent font-semibold" : "hover:text-accent"}`}>
-                      {item.label}
-                    </a>
-                  ))}
-                </nav>
-              </div>
-            )}
-          </div>
-
-          {/* Theme Toggle */}
-          <Button
-            onClick={toggleTheme}
-            className="p-2 hover:bg-white/10 dark:hover:bg-white/10"
-            aria-label="Toggle theme"
-          >
-            <div className="relative w-12 h-6 rounded-full bg-neutral-300 dark:bg-neutral-700 transition-colors">
-              <motion.div
-                className={`absolute top-1 w-4 h-4 rounded-full bg-white`}
-                initial={false}
-                animate={{ x: isDark ? 28 : 4 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              >
-                {isDark ? (
-                  <Moon size={16} className="text-neutral-900" />
-                ) : (
-                  <Sun size={16} className="text-yellow-500" />
-                )}
-              </motion.div>
-            </div>
-          </Button>
-      </header>
-
-      {/* Centered Navigation Bar for Desktop */}
-      <nav className="hidden md:flex fixed top-4 left-1/2 -translate-x-1/2 z-40 items-center gap-6">
-        <div className="rounded-full bg-neutral-900/85 border border-neutral-800/80 px-4 sm:px-6 py-2 shadow-lg shadow-black/40 backdrop-blur-md">
-          <div className="flex items-center gap-3 sm:gap-5">
-            {menuItems.map((item) => (
-              <motion.button
+      {/* Desktop Floating Nav */}
+      <motion.nav
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.8, ease: "circOut" }}
+        className={cn(
+          "fixed top-6 left-1/2 -translate-x-1/2 z-50 hidden md:block transition-all duration-300",
+          isScrolled ? "scale-95 top-4" : "scale-100"
+        )}
+      >
+        <div className="flex items-center gap-1 p-1.5 rounded-full bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] ring-1 ring-white/5">
+          {menuItems.map((item) => {
+            const isActive = activeSection === item.href.substring(1);
+            return (
+              <button
                 key={item.label}
-                type="button"
-                onClick={() => handleNavigation(item.href)}
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="group relative inline-flex items-center px-1.5 sm:px-2.5 py-1 text-xs sm:text-sm font-medium text-neutral-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                aria-label={`Go to ${item.label} section`}
-              >
-                <span
-                  className={`relative block tracking-[0.18em] uppercase transition-colors ${activeSection === item.href.substring(1) ? "text-accent" : "text-neutral-300 group-hover:text-accent"}`}
-                  style={{ fontFamily: "'Fira Code', monospace" }}
-                >
-                  {item.label}
-                  {activeSection === item.href.substring(1) && (
-                    <motion.span 
-                      layoutId="underline" 
-                      className="absolute left-0 -bottom-1 h-[2px] w-full bg-accent" 
-                    />
-                  )}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-        {/* Theme Toggle for desktop*/}
-        <motion.div whileHover={{ scale: 1.1 }} transition={{ type: 'spring', stiffness: 400, damping: 10 }}>
-        <Button
-            onClick={toggleTheme}
-            className="p-2 hover:bg-white/10 dark:hover:bg-white/10 rounded-full"
-            aria-label="Toggle theme"
-          >
-            <div className="relative w-12 h-6 rounded-full bg-neutral-300 dark:bg-neutral-700 transition-colors">
-              <motion.div
-                className={`absolute top-1 w-4 h-4 rounded-full bg-white`}
-                initial={false}
-                animate={{ x: isDark ? 28 : 4 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              >
-                {isDark ? (
-                  <Moon size={16} className="text-neutral-900" />
-                ) : (
-                  <Sun size={16} className="text-yellow-500" />
+                onClick={() => scrollTo(item.href)}
+                className={cn(
+                  "relative px-5 py-2.5 rounded-full text-xs font-semibold font-syne tracking-wide transition-all duration-300",
+                  isActive ? "text-black" : "text-neutral-400 hover:text-white"
                 )}
+                data-magnetic
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="nav-pill"
+                    className="absolute inset-0 bg-accent rounded-full -z-10 shadow-[0_0_20px_rgba(195,228,29,0.35)]"
+                    transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                  />
+                )}
+                <span className="relative z-10 uppercase">{item.label}</span>
+              </button>
+            )
+          })}
+        </div>
+      </motion.nav>
+
+      {/* Mobile Header */}
+      <motion.div
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex justify-between items-center md:hidden bg-background/80 backdrop-blur-md border-b border-white/5"
+      >
+        <span className="font-syne font-bold text-xl text-white tracking-tighter">DP.</span>
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="relative group z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white/5 border border-white/10 active:scale-95 transition-all text-white"
+        >
+          <AnimatePresence mode="wait">
+            {isMenuOpen ? (
+              <motion.div
+                key="close"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <X size={20} />
               </motion.div>
+            ) : (
+              <motion.div
+                key="menu"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Menu size={20} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </button>
+      </motion.div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl md:hidden flex flex-col items-center justify-center"
+          >
+            <div className="flex flex-col gap-6 text-center">
+              {menuItems.map((item, i) => (
+                <motion.button
+                  key={item.label}
+                  initial={{ opacity: 0, y: 40 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  transition={{ delay: 0.1 + i * 0.05, duration: 0.4, ease: "backOut" }}
+                  onClick={() => scrollTo(item.href)}
+                  className="relative group font-syne text-5xl font-bold text-transparent text-stroke hover:text-accent hover:text-stroke-0 transition-all duration-300 uppercase"
+                  style={{ WebkitTextStroke: "1px rgba(255,255,255,0.2)" }}
+                >
+                  <span className="inline-block transition-transform duration-300 group-hover:-translate-y-2">{item.label}</span>
+                </motion.button>
+              ))}
             </div>
-          </Button>
+
+            {/* Background Decoration */}
+            <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-1/4 left-1/4 w-72 h-72 bg-accent/20 rounded-full blur-[120px]"
+              />
+              <motion.div
+                animate={{ scale: [1, 1.1, 1], opacity: [0.2, 0.4, 0.2] }}
+                transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[150px]"
+              />
+            </div>
           </motion.div>
-      </nav>
+        )}
+      </AnimatePresence>
     </>
   );
 };

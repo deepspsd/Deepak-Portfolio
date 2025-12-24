@@ -1,87 +1,90 @@
 import { motion } from "framer-motion";
-import { Brain, Code, Database, Cloud, Wrench, Users } from "lucide-react";
+import Marquee from "@/components/ui/marquee";
+import { cn } from "@/lib/utils";
+import InteractiveHeading from "@/components/ui/InteractiveHeading";
+
+const skills = [
+  { name: "Python", category: "Language" },
+  { name: "Java", category: "Language" },
+  { name: "C++", category: "Language" },
+  { name: "C", category: "Language" },
+  { name: "HTML", category: "Web Development" },
+  { name: "CSS", category: "Web Development" },
+  { name: "JavaScript", category: "Web Development" },
+  { name: "TensorFlow", category: "AI/ML" },
+  { name: "PyTorch", category: "AI/ML" },
+  { name: "Scikit Learn", category: "AI/ML" },
+  { name: "HuggingFace", category: "Open Source LLM's" },
+  { name: "AI Tools", category: "AI/ML" },
+  { name: "LangChain", category: "AI/ML" },
+  { name: "API Integration", category: "AI/ML" },
+  { name: "React", category: "Frontend" },
+  { name: "TypeScript", category: "Language" },
+  { name: "Next.js", category: "Frontend" },
+  { name: "FastAPI", category: "Backend" },
+  { name: "Docker", category: "DevOps" },
+  { name: "MySQL", category: "Database" },
+  { name: "Git", category: "Tools" },
+  { name: "Aiven And AWS", category: "Cloud" }, 
+];
 
 const Skills = () => {
-  const skillCategories = [
-    {
-      icon: Brain,
-      title: "AI/ML Frameworks",
-      skills: ["TensorFlow", "PyTorch", "Scikit-learn", "Keras", "XGBoost", "LightGBM"]
-    },
-    {
-      icon: Code,
-      title: "Programming",
-      skills: ["Python", "JavaScript", "SQL", "R", "C++", "Java"]
-    },
-    {
-      icon: Database,
-      title: "Data & NLP",
-      skills: ["Pandas", "NumPy", "Hugging Face", "spaCy", "NLTK", "LangChain"]
-    },
-    {
-      icon: Cloud,
-      title: "Cloud & MLOps",
-      skills: ["AWS SageMaker", "Azure ML", "Docker", "Kubernetes", "MLflow", "DVC"]
-    },
-    {
-      icon: Wrench,
-      title: "Tools & Platforms",
-      skills: ["Jupyter", "Git", "FastAPI", "Streamlit", "Gradio", "Weights & Biases"]
-    },
-    {
-      icon: Users,
-      title: "Professional Skills",
-      skills: ["Research", "Problem Solving", "Team Collaboration", "Technical Writing", "Agile", "Mentoring"]
-    }
-  ];
-
   return (
-    <section id="skills" className="h-full py-20 px-4 sm:px-8 overflow-y-auto">
-      <div className="max-w-7xl mx-auto w-full">
-        <motion.h2
+    <div className="w-full py-20 lg:py-32 relative overflow-hidden">
+
+      {/* Dynamic Background */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-accent/5 rounded-full blur-[100px] -z-10" />
+
+      <div className="mb-20 text-center relative z-10 px-4">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-4xl sm:text-5xl font-bold mb-12 text-accent"
-          style={{ fontFamily: "'Fira Code', monospace" }}
+          className="inline-block"
         >
-          Skills & Tools
-        </motion.h2>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {skillCategories.map((category, index) => {
-            const Icon = category.icon;
-            return (
-              <motion.div
-                key={category.title}
-                initial={{ opacity: 0, y: 50 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-neutral-900 dark:bg-neutral-950 rounded-lg p-6 border border-neutral-800 hover:border-accent transition-all"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <Icon className="text-accent" size={24} />
-                  <h3 className="text-xl font-semibold text-white">{category.title}</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="text-sm px-3 py-1 bg-neutral-800 rounded-full text-neutral-300 hover:bg-accent hover:text-black transition-colors cursor-default"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+          <InteractiveHeading
+            text="TECHNICAL ARSENAL"
+            className="font-syne text-5xl md:text-7xl font-bold tracking-tighter"
+            delay={0.1}
+          />
+        </motion.div>
+        <p className="font-space text-neutral-400 uppercase tracking-widest text-sm md:text-base">
+          My Weapons of Choice for Digital Conquest
+        </p>
       </div>
-    </section>
+
+      <div className="relative z-10 space-y-16">
+        {/* Row 1: Left to Right */}
+        <Marquee pauseOnHover className="[--duration:40s] [--gap:2rem]">
+          {skills.slice(0, Math.ceil(skills.length / 2)).map((skill, i) => (
+            <SkillCard key={i} {...skill} />
+          ))}
+        </Marquee>
+
+        {/* Row 2: Right to Left */}
+        <Marquee reverse pauseOnHover className="[--duration:40s] [--gap:2rem]">
+          {skills.slice(Math.ceil(skills.length / 2)).map((skill, i) => (
+            <SkillCard key={i} {...skill} />
+          ))}
+        </Marquee>
+      </div>
+    </div>
   );
 };
+
+const SkillCard = ({ name, category }: { name: string; category: string }) => {
+  return (
+    <div className="group relative w-64 h-32 cursor-pointer">
+      <div className={cn(
+        "absolute inset-0 bg-neutral-900/40 backdrop-blur-md border border-white/5 rounded-2xl transition-all duration-300 group-hover:bg-accent group-hover:scale-105 group-hover:rotate-1"
+      )} />
+
+      <div className="relative h-full flex flex-col items-center justify-center z-10 p-4 transition-colors duration-300 group-hover:text-black">
+        <span className="font-syne text-2xl font-bold text-white group-hover:text-black">{name}</span>
+        <span className="font-space text-xs uppercase tracking-wider text-neutral-500 mt-2 group-hover:text-black/60">{category}</span>
+      </div>
+    </div>
+  )
+}
 
 export default Skills;

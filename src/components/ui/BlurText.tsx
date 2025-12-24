@@ -1,76 +1,69 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useRef } from "react";
+import { motion, useInView, Variants } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 interface BlurTextProps {
   text: string;
   delay?: number;
   animateBy?: "words" | "letters";
-  direction?: "top" | "bottom";
+  variant?: Variants;
   className?: string;
-  style?: React.CSSProperties;
 }
 
 const BlurText: React.FC<BlurTextProps> = ({
   text,
-  delay = 50,
+  delay = 0.05,
   animateBy = "words",
-  direction = "bottom",
-  className = "",
-  style = {},
+  variant,
+  className,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.1 });
 
-  const segments = useMemo(() => {
-    return animateBy === "words" ? text.split(" ") : text.split("");
-  }, [text, animateBy]);
-
-  useEffect(() => {
-    const element = ref.current;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          if (element) {
-            observer.unobserve(element);
-          }
-        }
+  const defaultContainer: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: delay,
       },
-      { threshold: 0.1 }
-    );
+    },
+  };
 
-    if (element) {
-      observer.observe(element);
-    }
+  const defaultItem: Variants = {
+    hidden: { opacity: 0, filter: "blur(10px)", y: 20 },
+    visible: {
+      opacity: 1,
+      filter: "blur(0px)",
+      y: 0,
+      transition: {
+        duration: 0.4,
+        ease: "easeOut",
+      },
+    },
+  };
 
-    return () => {
-      if (element) {
-        observer.unobserve(element);
-      }
-    };
-  }, []);
+  const segments = animateBy === "words" ? text.split(" ") : text.split("");
 
   return (
-    <div ref={ref} className={className} style={style}>
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={isInView ? "visible" : "hidden"}
+      variants={variant || defaultContainer}
+      className={cn("flex flex-wrap", className)}
+    >
       {segments.map((segment, index) => (
-        <span
+        <motion.span
           key={index}
+          variants={defaultItem}
           className="inline-block"
-          style={{
-            filter: isVisible ? "blur(0px)" : "blur(10px)",
-            opacity: isVisible ? 1 : 0,
-            transform: isVisible
-              ? "translateY(0)"
-              : direction === "top"
-              ? "translateY(-20px)"
-              : "translateY(20px)",
-            transition: `all 0.5s ease ${index * delay}ms`,
-          }}
         >
           {segment === " " ? "\u00A0" : segment}
-          {animateBy === "words" && index < segments.length - 1 && " "}
-        </span>
+          {animateBy === "words" && index < segments.length - 1 && "\u00A0"}
+        </motion.span>
       ))}
-    </div>
+    </motion.div>
   );
 };
 

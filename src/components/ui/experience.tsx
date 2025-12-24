@@ -1,105 +1,160 @@
-import { motion } from "framer-motion";
-import { Briefcase } from "lucide-react";
+import { motion, useScroll, useMotionTemplate, useMotionValue } from "framer-motion";
+import { useRef } from "react";
+import Section from "@/components/ui/Section";
+import InteractiveHeading from "@/components/ui/InteractiveHeading";
 
 const Experience = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  });
+
   const experiences = [
     {
-      year: "2023 - Present",
-      role: "AI Engineering Student",
-      company: "Sri Venkateshwara College Of Engineering",
-      description:
-        "Pursuing a Bachelor of Engineering in Artificial Intelligence with a strong focus on NLP, generative AI and end-to-end ML systems.",
-      achievements: [
-        "Built multiple ML and deep learning projects as part of coursework and self-learning",
-        "Actively involved in AI/ML clubs, hackathons and tech communities",
-        "Consistently improving fundamentals in Python, data structures and algorithms"
-      ]
-    },
-    {
       year: "2024 - Present",
-      role: "AI / ML Projects & Freelance Work",
-      company: "Personal & Open-Source Projects",
-      description:
-        "Working on real-world projects like recommendation systems, voice assistants and AI-powered platforms to apply concepts beyond the classroom.",
-      achievements: [
-        "Implemented a movie recommendation system combining content-based and collaborative filtering",
-        "Built an AI voice assistant using LLMs and real-time audio streaming",
-        "Created and maintained GitHub repositories showcasing production-ready AI/ML code"
-      ]
+      role: "AI Engineering Student",
+      company: "SVCE",
+      description: "Building a strong foundation in Generative AI, NLP, and Deep Learning. Actively building projects and contributing to open source.",
+      tech: ["Python", "PyTorch", "LangChain", "Next.js"],
+      active: true,
     },
     {
-      year: "Currently Seeking",
-      role: "AI / ML Internships",
-      company: "Open to Opportunities",
-      description:
-        "Actively looking for internship opportunities in AI/ML where I can contribute to real products, learn from experienced engineers and work with modern LLM/MLOps stacks.",
-      achievements: [
-        "Open to relocation or remote opportunities for the right role",
-        "Interested in NLP, generative AI, computer vision and end-to-end ML pipelines",
-        "Ready to bring strong fundamentals, fast learning and a builder mindset to a team"
-      ]
-    }
+      year: "2024",
+      role: "Freelance Developer",
+      company: "Self-Employed",
+      description: "Delivered custom web and AI solutions including a RAG-based chatbot and a high-performance portfolio site.",
+      tech: ["React", "Node.js", "OpenAI API", "Tailwind"],
+      active: true,
+    },
+    {
+      year: "Future",
+      role: "Aspiring AI Engineer",
+      company: "Open to Work",
+      description: "Fresher ready to tackle challenging problems in AI/ML and Full Stack Engineering. Eager to learn and ship production code.",
+      tech: ["AI Agents", "System Design", "Scalability"],
+      active: false,
+    },
   ];
 
   return (
-    <section id="experience" className="h-full py-20 px-4 sm:px-8 overflow-y-auto">
-      <div className="max-w-6xl mx-auto w-full">
-        <motion.h2
+    <Section id="experience" className="min-h-screen relative z-10">
+      <div ref={containerRef} className="mx-auto max-w-6xl px-6 relative z-10 py-20">
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-4xl sm:text-5xl font-bold mb-12 text-accent"
-          style={{ fontFamily: "'Fira Code', monospace" }}
+          className="mb-32 flex flex-col items-center text-center"
         >
-          Experience
-        </motion.h2>
+          <InteractiveHeading
+            text="CAREER PATH"
+            className="font-syne text-5xl md:text-7xl font-bold text-white mb-6"
+            delay={0.1}
+          />
+          <p className="font-space text-neutral-400 uppercase tracking-widest max-w-sm mx-auto">
+            My journey through the digital landscape
+          </p>
+        </motion.div>
 
-        <div className="relative">
-          {/* Timeline line */}
-          <div className="absolute left-3 md:left-1/2 top-0 bottom-0 w-0.5 bg-neutral-800"></div>
+        <div className="relative space-y-24">
+          {/* Main Timeline Track */}
+          <div className="absolute left-4 md:left-[50%] top-0 bottom-0 w-[1px] bg-white/10" />
+
+          {/* Glowing Progress Line */}
+          <motion.div
+            style={{ scaleY: scrollYProgress }}
+            className="absolute left-4 md:left-[50%] top-0 bottom-0 w-[2px] bg-gradient-to-b from-accent to-transparent origin-top shadow-[0_0_15px_#c3e41d]"
+          />
 
           {experiences.map((exp, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className={`relative mb-12 ${
-                index % 2 === 0 ? "md:pr-1/2 md:text-right" : "md:pl-1/2 md:ml-auto"
-              }`}
-            >
-              {/* Timeline dot */}
-              <div className="absolute left-0 md:left-1/2 top-0 w-6 h-6 bg-neutral-900 border-2 border-accent rounded-full flex items-center justify-center -translate-x-[11px] md:-translate-x-1/2">
-                <div className="w-2 h-2 bg-accent rounded-full"></div>
-              </div>
-
-              <div className={`ml-12 md:ml-0 ${index % 2 === 0 ? "md:mr-12" : "md:ml-12"}`}>
-                <motion.div 
-                  className="bg-neutral-900/50 dark:bg-neutral-950/50 rounded-lg p-6 border border-neutral-800 backdrop-blur-sm hover:border-accent transition-all hover:scale-105"
-                  whileHover={{ boxShadow: "0 0 20px rgba(195, 228, 29, 0.1)" }}
-                >
-                  <span className="text-accent font-semibold text-sm">{exp.year}</span>
-                  <h3 className="text-2xl font-bold text-white mt-2">{exp.role}</h3>
-                  <p className="text-neutral-400 mb-3">{exp.company}</p>
-                  <p className="text-neutral-300 mb-4">{exp.description}</p>
-                  <ul className="space-y-2">
-                    {exp.achievements.map((achievement, i) => (
-                      <li key={i} className="text-sm text-neutral-400 flex items-start gap-2">
-                        <Briefcase className="text-accent w-4 h-4 mt-1 flex-shrink-0" />
-                        <span>{achievement}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </motion.div>
-              </div>
-            </motion.div>
+            <TimelineItem key={index} data={exp} index={index} />
           ))}
         </div>
       </div>
-    </section>
+
+      {/* Optimized Background Glow */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-96 h-96 bg-accent/5 rounded-full blur-[150px] pointer-events-none" />
+    </Section>
   );
 };
+
+const TimelineItem = ({ data, index }: { data: any, index: number }) => {
+  const isEven = index % 2 === 0;
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  // Spotlight
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+    const { left, top } = currentTarget.getBoundingClientRect();
+    mouseX.set(clientX - left);
+    mouseY.set(clientY - top);
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.7, delay: index * 0.1 }}
+      className={`relative flex flex-col md:flex-row gap-8 md:gap-0 ${isEven ? 'md:flex-row-reverse' : ''}`}
+    >
+      {/* Center Point */}
+      <div className="absolute left-4 md:left-[50%] -translate-x-1/2 w-4 h-4 bg-black border-2 border-accent rounded-full z-10 box-content shadow-[0_0_10px_rgba(195,228,29,0.5)] transition-transform duration-300 hover:scale-150" />
+
+      {/* Content Side */}
+      <div className="md:w-1/2 pl-12 md:pl-0 md:px-12">
+        <div className={`flex flex-col gap-4 ${isEven ? 'md:items-start md:text-left' : 'md:items-end md:text-right'}`}>
+          <span className="font-space text-accent text-sm tracking-[0.2em] font-bold">
+            {data.year}
+          </span>
+
+          <div
+            onMouseMove={handleMouseMove}
+            className="group relative p-8 rounded-2xl bg-neutral-900/50 border border-white/5 hover:border-white/10 transition-colors w-full overflow-hidden"
+          >
+            {/* Spotlight Gradient */}
+            <motion.div
+              className="pointer-events-none absolute -inset-px opacity-0 transition duration-300 group-hover:opacity-100"
+              style={{
+                background: useMotionTemplate`
+                  radial-gradient(
+                    350px circle at ${mouseX}px ${mouseY}px,
+                    rgba(195, 228, 29, 0.06),
+                    transparent 80%
+                  )
+                `,
+              }}
+            />
+
+            <h3 className="relative z-10 font-syne text-3xl font-bold text-white mb-2 group-hover:text-accent transition-colors">
+              {data.role}
+            </h3>
+            <p className="relative z-10 font-space text-lg text-neutral-400 mb-4 font-medium">
+              {data.company}
+            </p>
+            <p className="relative z-10 text-neutral-300 leading-relaxed text-sm mb-6">
+              {data.description}
+            </p>
+
+            <div className={`relative z-10 flex flex-wrap gap-2 ${isEven ? 'justify-start' : 'md:justify-end justify-start'}`}>
+              {data.tech.map((t: string) => (
+                <span key={t} className="px-3 py-1 text-[10px] uppercase tracking-wider rounded-full border border-white/10 bg-black/20 text-neutral-400 group-hover:bg-accent/10 group-hover:text-accent group-hover:border-accent/20 transition-all">
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Empty Side for layout balance */}
+      <div className="md:w-1/2 hidden md:block" />
+
+    </motion.div>
+  )
+}
 
 export default Experience;
