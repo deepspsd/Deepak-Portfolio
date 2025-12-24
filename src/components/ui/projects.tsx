@@ -23,7 +23,7 @@ const Projects = () => {
       title: "Movie Rec. System",
       description:
         "End-to-end recommendation engine providing personalized suggestions via content-based & collaborative filtering.",
-      tech: ["Python", "React", "Scikit-learn","Next.js","ML"],
+      tech: ["Python", "React", "Scikit-learn", "Next.js", "ML"],
       github: "https://github.com/deepspsd/Movie-Recomendation-System",
       demo: "#",
       image: "linear-gradient(to bottom right, #2C5364, #203A43, #0F2027)",
@@ -53,7 +53,7 @@ const Projects = () => {
       title: "Nexora Co-Pilot",
       description:
         "AI startup co-pilot for idea validation, business planning, and market strategy generation.",
-      tech: ["Hugging Face", "React", "Next.js", "Groq", "Python","Agentic AI", "API"],
+      tech: ["Hugging Face", "React", "Next.js", "Groq", "Python", "Agentic AI", "API"],
       github: "https://github.com/deepspsd/Nexora",
       demo: "#",
       image: "linear-gradient(to bottom right, #C3E41D, #1a1a1a)",

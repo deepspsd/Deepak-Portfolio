@@ -15,7 +15,11 @@ import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 function App() {
   return (
     <ReactLenis root>
-      <MagneticCursor cursorColor="hsl(var(--accent))">
+      <MagneticCursor
+        cursorColor="hsl(76, 78%, 50%)"
+        magneticFactor={0.1}
+        blendMode="difference"
+      >
         <main className="bg-black text-white relative">
           <BackgroundEffects />
           <Navbar />

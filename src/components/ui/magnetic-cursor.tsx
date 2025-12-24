@@ -35,7 +35,10 @@ interface CursorState {
         target: Vec2;
         previous: Vec2;
     };
-    hover: { isHovered: boolean };
+    hover: {
+        isHovered: boolean;
+        currentMagneticElement: HTMLElement | null;
+    };
 }
 
 export const MagneticCursor: FC<MagneticCursorProps> = ({
@@ -86,52 +89,32 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
                     target: vec2(-100, -100),
                     previous: vec2(-100, -100),
                 },
-                hover: { isHovered: false },
+                hover: { isHovered: false, currentMagneticElement: null },
             };
         }
 
+        const state = cursorStateRef.current!;
+
         const update = () => {
-            const state = cursorStateRef.current;
-            if (!state || state.hover.isHovered) return;
+            if (!state.hover.isHovered) {
+                state.pos.current.lerp(state.pos.target, effectiveLerpAmount);
+                const delta = state.pos.current.clone().sub(state.pos.previous);
+                state.pos.previous.copy(state.pos.current);
 
-            state.pos.current.lerp(state.pos.target, effectiveLerpAmount);
-            const delta = state.pos.current.clone().sub(state.pos.previous);
-            state.pos.previous.copy(state.pos.current);
+                const speed = Math.sqrt(delta.x * delta.x + delta.y * delta.y) * ANIMATION_CONSTANTS.SPEED_MULTIPLIER;
 
-            const speed = Math.sqrt(delta.x * delta.x + delta.y * delta.y) * ANIMATION_CONSTANTS.SPEED_MULTIPLIER;
-
-            gsap.set(state.el, {
-                x: state.pos.current.x,
-                y: state.pos.current.y,
-                rotate: Math.atan2(delta.y, delta.x) * (180 / Math.PI),
-                scaleX: 1 + Math.min(speed, ANIMATION_CONSTANTS.MAX_SCALE_X),
-                scaleY: 1 - Math.min(speed, ANIMATION_CONSTANTS.MAX_SCALE_Y),
-            });
-        };
-
-        // Initialize position on first mouse move
-        const initializePosition = (event: MouseEvent) => {
-            const state = cursorStateRef.current;
-            if (!state) return;
-
-            const x = event.clientX - cursorSize / 2;
-            const y = event.clientY - cursorSize / 2;
-
-            state.pos.current.x = x;
-            state.pos.current.y = y;
-            state.pos.target.x = x;
-            state.pos.target.y = y;
-            state.pos.previous.x = x;
-            state.pos.previous.y = y;
-
-            gsap.set(cursorEl, { x, y, opacity: 1 });
+                gsap.set(state.el, {
+                    x: state.pos.current.x,
+                    y: state.pos.current.y,
+                    rotate: Math.atan2(delta.y, delta.x) * (180 / Math.PI),
+                    scaleX: 1 + Math.min(speed, ANIMATION_CONSTANTS.MAX_SCALE_X),
+                    scaleY: 1 - Math.min(speed, ANIMATION_CONSTANTS.MAX_SCALE_Y),
+                });
+            }
         };
 
         const onMouseMove = (event: PointerEvent) => {
-            const state = cursorStateRef.current;
-            if (!state) return;
-
-            // Check if cursor is within viewport
+            // Check visibility
             const isInViewport =
                 event.clientX >= 0 &&
                 event.clientX <= window.innerWidth &&
@@ -146,8 +129,96 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
                 gsap.to(cursorEl, { opacity: 0, duration: 0.2 });
             }
 
-            // Text selection feedback
+            // Check for magnetic elements dynamically
             const target = event.target as HTMLElement;
+            const magneticElement = target.closest(`[${hoverAttribute}]`) as HTMLElement;
+
+            if (magneticElement) {
+                if (state.hover.currentMagneticElement !== magneticElement) {
+                    // Start hovering new element
+                    state.hover.isHovered = true;
+                    state.hover.currentMagneticElement = magneticElement;
+
+                    const bounds = magneticElement.getBoundingClientRect();
+                    const computedStyle = window.getComputedStyle(magneticElement);
+                    const magneticColor = magneticElement.getAttribute('data-magnetic-color') || cursorColor;
+                    const customPadding = magneticElement.getAttribute('data-magnetic-padding');
+                    const effectivePadding = customPadding ? parseInt(customPadding) : hoverPadding;
+
+                    gsap.killTweensOf(cursorEl);
+                    gsap.to(cursorEl, {
+                        x: bounds.left - effectivePadding,
+                        y: bounds.top - effectivePadding,
+                        width: bounds.width + effectivePadding * 2,
+                        height: bounds.height + effectivePadding * 2,
+                        borderRadius: computedStyle.borderRadius,
+                        backgroundColor: magneticColor,
+                        scaleX: 1,
+                        scaleY: 1,
+                        rotate: 0,
+                        duration: animationDuration,
+                        ease: 'power3.out',
+                    });
+                }
+
+                // Animate element magnetic pull
+                const { left, top, width, height } = magneticElement.getBoundingClientRect();
+                const centerX = left + width / 2;
+                const centerY = top + height / 2;
+
+                const x = (event.clientX - centerX) * magneticFactor;
+                const y = (event.clientY - centerY) * magneticFactor;
+
+                gsap.to(magneticElement, {
+                    x: x,
+                    y: y,
+                    duration: 1,
+                    ease: 'elastic.out(1, 0.3)',
+                    overwrite: "auto"
+                });
+
+            } else {
+                // Not hovering a magnetic element
+                if (state.hover.isHovered) {
+
+                    // Reset the previous magnetic element position
+                    if (state.hover.currentMagneticElement) {
+                        gsap.to(state.hover.currentMagneticElement, {
+                            x: 0,
+                            y: 0,
+                            duration: 1,
+                            ease: 'elastic.out(1, 0.3)',
+                        });
+                    }
+
+                    // Sync state position with current visual position to prevent jumping
+                    const currentX = gsap.getProperty(cursorEl, "x") as number;
+                    const currentY = gsap.getProperty(cursorEl, "y") as number;
+                    state.pos.current.x = currentX;
+                    state.pos.current.y = currentY;
+                    state.pos.previous.x = currentX;
+                    state.pos.previous.y = currentY;
+
+                    state.hover.isHovered = false;
+                    state.hover.currentMagneticElement = null;
+
+                    const shapeBorderRadius =
+                        shape === 'circle' ? '50%' : shape === 'square' ? '0' : '8px';
+
+                    gsap.killTweensOf(cursorEl);
+                    gsap.to(cursorEl, {
+                        width: cursorSize,
+                        height: cursorSize,
+                        borderRadius: shapeBorderRadius,
+                        backgroundColor: cursorColor,
+                        duration: detachDuration,
+                        ease: 'power3.out',
+                    });
+                }
+            }
+
+
+            // Text selection feedback
             const isTextContent =
                 target.tagName === 'P' ||
                 target.tagName === 'SPAN' ||
@@ -168,12 +239,11 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
             }
         };
 
-        // Hide cursor when mouse leaves window
-        const handleMouseLeave = () => {
+        const handleMouseLeaveWindow = () => {
             gsap.to(cursorEl, { opacity: 0, duration: 0.3 });
         };
 
-        const handleMouseEnter = () => {
+        const handleMouseEnterWindow = () => {
             gsap.to(cursorEl, { opacity: 1, duration: 0.3 });
         };
 
@@ -219,104 +289,18 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
 
         gsap.ticker.add(update);
         window.addEventListener('pointermove', onMouseMove);
-        window.addEventListener('pointermove', initializePosition, { once: true });
-        document.addEventListener('mouseleave', handleMouseLeave);
-        document.addEventListener('mouseenter', handleMouseEnter);
+        document.addEventListener('mouseleave', handleMouseLeaveWindow);
+        document.addEventListener('mouseenter', handleMouseEnterWindow);
         window.addEventListener('click', handleClick);
-
-        // Cleanup functions array
-        const cleanupFunctions: (() => void)[] = [];
-
-        const magneticElements = gsap.utils.toArray<HTMLElement>(`[${hoverAttribute}]`);
-        magneticElements.forEach((el) => {
-            const xTo = gsap.quickTo(el, 'x', { duration: 1, ease: 'elastic.out(1, 0.3)' });
-            const yTo = gsap.quickTo(el, 'y', { duration: 1, ease: 'elastic.out(1, 0.3)' });
-
-            const handlePointerEnter = () => {
-                const state = cursorStateRef.current;
-                if (!state) return;
-                state.hover.isHovered = true;
-                const bounds = el.getBoundingClientRect();
-                const computedStyle = window.getComputedStyle(el);
-
-                // Get custom color if specified
-                const magneticColor = el.getAttribute('data-magnetic-color') || cursorColor;
-
-                gsap.killTweensOf(cursorEl);
-                gsap.to(cursorEl, {
-                    x: bounds.left - hoverPadding,
-                    y: bounds.top - hoverPadding,
-                    width: bounds.width + hoverPadding * 2,
-                    height: bounds.height + hoverPadding * 2,
-                    borderRadius: computedStyle.borderRadius,
-                    backgroundColor: magneticColor,
-                    scaleX: 1,
-                    scaleY: 1,
-                    rotate: 0,
-                    duration: animationDuration,
-                    ease: 'power3.out',
-                });
-            };
-
-            const handlePointerLeave = () => {
-                const state = cursorStateRef.current;
-                if (!state) return;
-                state.hover.isHovered = false;
-
-                const shapeBorderRadius =
-                    shape === 'circle' ? '50%' : shape === 'square' ? '0' : '8px';
-
-                gsap.killTweensOf(cursorEl);
-                gsap.to(cursorEl, {
-                    x: state.pos.target.x,
-                    y: state.pos.target.y,
-                    width: cursorSize,
-                    height: cursorSize,
-                    borderRadius: shapeBorderRadius,
-                    backgroundColor: cursorColor,
-                    duration: detachDuration,
-                    ease: 'power3.out',
-                });
-            };
-
-            let rafId: number | null = null;
-            const handlePointerMove = (event: PointerEvent) => {
-                if (rafId) return;
-                rafId = requestAnimationFrame(() => {
-                    const { clientX, clientY } = event;
-                    const { height, width, left, top } = el.getBoundingClientRect();
-                    xTo((clientX - (left + width / 2)) * magneticFactor);
-                    yTo((clientY - (top + height / 2)) * magneticFactor);
-                    rafId = null;
-                });
-            };
-
-            const handlePointerOut = () => {
-                xTo(0);
-                yTo(0);
-            };
-
-            el.addEventListener('pointerenter', handlePointerEnter);
-            el.addEventListener('pointerleave', handlePointerLeave);
-            el.addEventListener('pointermove', handlePointerMove);
-            el.addEventListener('pointerout', handlePointerOut);
-
-            cleanupFunctions.push(() => {
-                el.removeEventListener('pointerenter', handlePointerEnter);
-                el.removeEventListener('pointerleave', handlePointerLeave);
-                el.removeEventListener('pointermove', handlePointerMove);
-                el.removeEventListener('pointerout', handlePointerOut);
-            });
-        });
 
         return () => {
             gsap.ticker.remove(update);
             window.removeEventListener('pointermove', onMouseMove);
-            document.removeEventListener('mouseleave', handleMouseLeave);
-            document.removeEventListener('mouseenter', handleMouseEnter);
+            document.removeEventListener('mouseleave', handleMouseLeaveWindow);
+            document.removeEventListener('mouseenter', handleMouseEnterWindow);
             window.removeEventListener('click', handleClick);
-            cleanupFunctions.forEach((cleanup) => cleanup());
-        };
+        }
+
     }, [lerpAmount, magneticFactor, hoverPadding, hoverAttribute, cursorSize, cursorColor, shape]);
 
     return (

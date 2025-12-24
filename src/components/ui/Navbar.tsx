@@ -86,6 +86,7 @@ const Navbar: React.FC = () => {
                   isActive ? "text-black" : "text-neutral-400 hover:text-white"
                 )}
                 data-magnetic
+                data-magnetic-padding="4"
               >
                 {isActive && (
                   <motion.div
