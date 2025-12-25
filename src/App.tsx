@@ -1,4 +1,6 @@
 
+import { useState, useEffect } from "react";
+import MobileBlocker from "@/components/ui/MobileBlocker";
 import PortfolioHero from "@/components/ui/portfolio-hero";
 import Navbar from "@/components/ui/Navbar";
 import Experience from "@/components/ui/experience";
@@ -13,6 +15,22 @@ import BackgroundEffects from "@/components/ui/BackgroundEffects";
 import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 
 function App() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return <MobileBlocker />;
+  }
+
   return (
     <MagneticCursor
       cursorColor="hsl(76, 78%, 50%)"
