@@ -13,6 +13,7 @@ import Section from "@/components/ui/Section";
 import BackgroundEffects from "@/components/ui/BackgroundEffects";
 
 import { MagneticCursor } from "@/components/ui/magnetic-cursor";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
@@ -39,6 +40,7 @@ function App() {
     >
       <main className="bg-black text-white relative">
         <BackgroundEffects />
+        <SpeedInsights />
         <Navbar />
         <Section id="home">
           <PortfolioHero />
