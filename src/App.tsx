@@ -1,4 +1,4 @@
-import { ReactLenis } from '@studio-freight/react-lenis'
+
 import PortfolioHero from "@/components/ui/portfolio-hero";
 import Navbar from "@/components/ui/Navbar";
 import Experience from "@/components/ui/experience";
@@ -14,33 +14,31 @@ import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 
 function App() {
   return (
-    <ReactLenis root>
-      <MagneticCursor
-        cursorColor="hsl(76, 78%, 50%)"
-        magneticFactor={0.1}
-        blendMode="difference"
-      >
-        <main className="bg-black text-white relative">
-          <BackgroundEffects />
-          <Navbar />
-          <Section id="home">
-            <PortfolioHero />
-          </Section>
-          <Section id="about">
-            <About />
-          </Section>
-          <Section id="education">
-            <Education />
-          </Section>
-          <Section id="skills">
-            <Skills />
-          </Section>
-          <Projects />
-          <Experience />
-          <Contact />
-        </main>
-      </MagneticCursor>
-    </ReactLenis>
+    <MagneticCursor
+      cursorColor="hsl(76, 78%, 50%)"
+      magneticFactor={0.1}
+      blendMode="difference"
+    >
+      <main className="bg-black text-white relative">
+        <BackgroundEffects />
+        <Navbar />
+        <Section id="home">
+          <PortfolioHero />
+        </Section>
+        <Section id="about">
+          <About />
+        </Section>
+        <Section id="education">
+          <Education />
+        </Section>
+        <Section id="skills">
+          <Skills />
+        </Section>
+        <Projects />
+        <Experience />
+        <Contact />
+      </main>
+    </MagneticCursor>
   );
 }
 
