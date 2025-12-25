@@ -14,6 +14,7 @@ import BackgroundEffects from "@/components/ui/BackgroundEffects";
 
 import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 import { SpeedInsights } from "@vercel/speed-insights/react";
+import { Analytics } from "@vercel/analytics/react";
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
@@ -41,6 +42,7 @@ function App() {
       <main className="bg-black text-white relative">
         <BackgroundEffects />
         <SpeedInsights />
+        <Analytics />
         <Navbar />
         <Section id="home">
           <PortfolioHero />
