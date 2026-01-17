@@ -124,7 +124,7 @@ const PortfolioHero: React.FC = () => {
 
               <Magnetic strength={40}>
                 <a
-                  href="https://drive.google.com/file/d/1j3p_0s3ZZybahMuLznEw_MLrgOm2qpxQ/view?usp=drivesdk"
+                  href="https://drive.google.com/file/d/1CrpvjfxdLVhsFad2gs_XQ3eSGn28BAGl/view?usp=sharing"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-6 py-3 rounded-full border border-white/10 bg-white/5 text-xs font-bold font-syne uppercase tracking-wider text-white hover:bg-white hover:text-black hover:border-white transition-all duration-300 backdrop-blur-sm"
