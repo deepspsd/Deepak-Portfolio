@@ -1,67 +1,50 @@
-
-import { useState, useEffect } from "react";
-import MobileBlocker from "@/components/ui/MobileBlocker";
-import PortfolioHero from "@/components/ui/portfolio-hero";
-import Navbar from "@/components/ui/Navbar";
-import Experience from "@/components/ui/experience";
-import Skills from "@/components/ui/skills";
-import Projects from "@/components/ui/projects";
-import Contact from "@/components/ui/contact";
-import About from "@/components/ui/about";
-import Education from "@/components/ui/education";
-import Section from "@/components/ui/Section";
-import BackgroundEffects from "@/components/ui/BackgroundEffects";
-
-import { MagneticCursor } from "@/components/ui/magnetic-cursor";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider, useTheme } from "@/theme";
+import { useMode } from "@/hooks/useMode";
+import { MagneticCursor } from "@/components/ui/magnetic-cursor";
+import Preloader from "@/components/Preloader";
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import About from "@/components/About";
+import Experience from "@/components/Experience";
+import Projects from "@/components/Projects";
+import Skills from "@/components/Skills";
+import Education from "@/components/Education";
+import Contact from "@/components/Contact";
+import Footer from "@/components/Footer";
 
-function App() {
-  const [isMobile, setIsMobile] = useState(false);
+const LIGHT_CURSOR = "#0697ab"; // reads as coral on paper through the difference blend
+const DARK_CURSOR = "hsl(76, 78%, 50%)";
 
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  if (isMobile) {
-    return <MobileBlocker />;
-  }
+function Site() {
+  useMode();
+  const { theme } = useTheme();
 
   return (
-    <MagneticCursor
-      cursorColor="hsl(76, 78%, 50%)"
-      magneticFactor={0.1}
-      blendMode="difference"
-    >
-      <main className="bg-black text-white relative">
-        <BackgroundEffects />
-        <SpeedInsights />
-        <Analytics />
-        <Navbar />
-        <Section id="home">
-          <PortfolioHero />
-        </Section>
-        <Section id="about">
-          <About />
-        </Section>
-        <Section id="education">
-          <Education />
-        </Section>
-        <Section id="skills">
-          <Skills />
-        </Section>
-        <Projects />
+    <MagneticCursor cursorColor={theme === "dark" ? DARK_CURSOR : LIGHT_CURSOR} magneticFactor={0.1} blendMode="difference">
+      <Preloader />
+      <Header />
+      <main>
+        <Hero />
+        <About />
         <Experience />
+        <Projects />
+        <Skills />
+        <Education />
         <Contact />
       </main>
+      <Footer />
+      <SpeedInsights />
+      <Analytics />
     </MagneticCursor>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <ThemeProvider>
+      <Site />
+    </ThemeProvider>
+  );
+}

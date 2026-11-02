@@ -66,14 +66,11 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
         checkTouch();
     }, []);
 
-    // Early return if touch device
-    if (disableOnTouch && isTouchDevice) {
-        return <>{children}</>;
-    }
+    const inactive = disableOnTouch && isTouchDevice;
 
     useEffect(() => {
         const cursorEl = cursorRef.current;
-        if (!cursorEl) return;
+        if (!cursorEl || inactive) return;
 
         // Check for reduced motion preference
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -301,7 +298,11 @@ export const MagneticCursor: FC<MagneticCursorProps> = ({
             window.removeEventListener('click', handleClick);
         }
 
-    }, [lerpAmount, magneticFactor, hoverPadding, hoverAttribute, cursorSize, cursorColor, shape]);
+    }, [lerpAmount, magneticFactor, hoverPadding, hoverAttribute, cursorSize, cursorColor, shape, inactive]);
+
+    if (inactive) {
+        return <>{children}</>;
+    }
 
     return (
         <>
